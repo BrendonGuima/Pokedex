@@ -1,0 +1,30 @@
+﻿@page "/"
+@using Newtonsoft.Json
+@using System.Net
+
+<div class="main">
+<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/58.gif" alt="pokemon" class="pokemon_image">
+
+    <h1 class="pokemon_data">
+      <span class="pokemon_number"></span> -
+      <span class="pokemon_name"></span>
+    </h1>
+
+    <form class="form">
+      <input @bind=_search type="search" class="input_search" placeholder="Name or Number" required/>
+    </form>
+
+<div class="buttons">
+      <button class="button btn-prev">Prev &lt;</button>
+      <button class="button btn-next">Next &gt;</button>
+</div>
+
+<img src="https://i.imgur.com/CVY39uR.png" alt="pokedex" class="pokedex">
+
+</div>
+
+@code {
+    private string _search = "";
+
+}
+
