@@ -1,12 +1,13 @@
 ﻿@page "/"
 @using Newtonsoft.Json
 @using System.Net
+@using Pokedex.Entities
 
 <div class="main">
 <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/58.gif" alt="pokemon" class="pokemon_image">
 
     <h1 class="pokemon_data">
-      <span class="pokemon_number"></span> -
+      <span class="pokemon_number">@Obter()</span> -
       <span class="pokemon_name"></span>
     </h1>
 
@@ -25,6 +26,49 @@
 
 @code {
     private string _search = "";
+    public string url { get; set; }
+    private int atual = 0;
 
+    public void ApiRequest()
+    {
+        url = "https://pokeapi.co/api/v2/pokemon?limit=100000&offset=";
+    }
+
+    public PokeLista Obter()
+    {
+        var consulta = (HttpWebRequest)WebRequest.Create(url + atual);
+        consulta.Method = "GET";
+        consulta.ContentType = "application/json";
+        consulta.Accept = "application/json";
+
+        try
+        {
+            using (WebResponse response = consulta.GetResponse() )
+            {
+                using (Stream stream = response.GetResponseStream() )
+                {
+                    if (stream == null)
+                    {
+                        return null;
+                    }
+                    using (StreamReader select = new StreamReader(stream) )
+                    {
+                        string respostaTexto = select.ReadToEnd();
+
+                        PokeLista pokelista = JsonConvert.DeserializeObject<PokeLista>(respostaTexto);
+
+                        atual += 10;
+                        return pokelista;
+                    }
+
+                }
+            }
+
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
 }
 
