@@ -1,23 +1,24 @@
 ﻿@page "/"
-@using Newtonsoft.Json
 @using System.Net
-@using Pokedex.Entities
+@using Newtonsoft.Json
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
 
 <div class="main">
-<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/58.gif" alt="pokemon" class="pokemon_image">
+<img src="@imgPokemon" alt="pokemon" class="pokemon_image">
 
     <h1 class="pokemon_data">
-      <span class="pokemon_number">@Obter()</span> -
-      <span class="pokemon_name"></span>
+      <span class="pokemon_number">@pokemon.id</span> -
+      <span class="pokemon_name">@pokemon.name</span>
     </h1>
 
     <form class="form">
-      <input @bind=_search type="search" class="input_search" placeholder="Name or Number" required/>
+      <input @bind-value="_search" @oninvalid="ApiSearch" type="search" class="input_search" placeholder="Name or Number" required/>
     </form>
 
 <div class="buttons">
-      <button class="button btn-prev">Prev &lt;</button>
-      <button class="button btn-next">Next &gt;</button>
+      <button class="button btn-prev" @onclick="ApiRetorno">Prev &lt;</button>
+      <button class="button btn-next" @onclick="ApiProximo">Next &gt;</button>
 </div>
 
 <img src="https://i.imgur.com/CVY39uR.png" alt="pokedex" class="pokedex">
@@ -25,50 +26,59 @@
 </div>
 
 @code {
-    private string _search = "";
-    public string url { get; set; }
-    private int atual = 0;
+    private string _search;
+    private int atual = 1;
+    private string imgPokemon;
+    PokeLista pokemon;
 
-    public void ApiRequest()
+    private async Task ApiSearch()
     {
-        url = "https://pokeapi.co/api/v2/pokemon?limit=100000&offset=";
-    }
 
-    public PokeLista Obter()
-    {
-        var consulta = (HttpWebRequest)WebRequest.Create(url + atual);
-        consulta.Method = "GET";
-        consulta.ContentType = "application/json";
-        consulta.Accept = "application/json";
-
-        try
+        string uri = "https://pokeapi.co/api/v2/pokemon/" + _search;
+        string resultado = await Http.GetStringAsync(uri);
+        var poke = JsonConvert.DeserializeObject<PokeLista>(resultado);
+        pokemon = poke;
+        imgPokemon = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/" + atual + ".gif";
+        if (poke == null)
         {
-            using (WebResponse response = consulta.GetResponse() )
-            {
-                using (Stream stream = response.GetResponseStream() )
-                {
-                    if (stream == null)
-                    {
-                        return null;
-                    }
-                    using (StreamReader select = new StreamReader(stream) )
-                    {
-                        string respostaTexto = select.ReadToEnd();
-
-                        PokeLista pokelista = JsonConvert.DeserializeObject<PokeLista>(respostaTexto);
-
-                        atual += 10;
-                        return pokelista;
-                    }
-
-                }
-            }
-
-        }
-        catch (Exception)
-        {
-            throw;
+            NavigationManager.NavigateTo("/", forceLoad: true);
+            return;
         }
     }
+
+    private async Task ApiProximo()
+    {
+        atual++;
+        string uri = "https://pokeapi.co/api/v2/pokemon/" + atual;
+        string resultado = await Http.GetStringAsync(uri);
+        var poke = JsonConvert.DeserializeObject<PokeLista>(resultado);
+        pokemon = poke;
+        imgPokemon = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/" + atual + ".gif";
+    }
+
+    private async Task ApiRetorno()
+    {
+        atual--;
+        string uri = "https://pokeapi.co/api/v2/pokemon/" + atual;
+        string resultado = await Http.GetStringAsync(uri);
+        var poke = JsonConvert.DeserializeObject<PokeLista>(resultado);
+        pokemon = poke;
+        imgPokemon = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/" + atual + ".gif";
+    }
+
+        protected override async Task OnInitializedAsync()
+    {
+        try{
+                imgPokemon = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/" + atual + ".gif";
+                string url = "https://pokeapi.co/api/v2/pokemon/1";
+                string resultado = await Http.GetStringAsync(url);
+                var poke = JsonConvert.DeserializeObject<PokeLista>(resultado);
+                pokemon = poke;
+        }
+        catch (WebException ex)
+        {
+            throw ex;
+        }
+    }
+
 }
-
