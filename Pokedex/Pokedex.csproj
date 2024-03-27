@@ -13,8 +13,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
+
   <ItemGroup>
-    <Folder Include="Entities\" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\imagem\Pokedex.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\imagem\pokemon-svgrepo-com.svg" />
   </ItemGroup>
 
 </Project>
