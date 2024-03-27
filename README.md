@@ -1,1 +1,1 @@
-Pokedex foi um experimento em blazor que fiz contruindo uma pokedex utilizando a PokemonApiV2 com o Blazor WebAssembly.
+Pokedex foi um experimento que fiz contruindo uma pokedex com a PokemonApiV2 ultilizando o Blazor .Net6
